@@ -13,6 +13,25 @@ export const authOptions: NextAuthOptions = {
       issuer: process.env.AUTH0_ISSUER_BASE_URL
     })
   ],
+  
+  callbacks: {
+    async jwt({ token, user, account }) {
+      
+      if (account?.access_token) {
+        token.accessToken = account.access_token;
+      }
+
+      if (user) {
+        token.name = user.name;
+      }
+
+      return Promise.resolve({...token, ...user});
+    },
+    async session({ session, token, user }) {
+      // Send properties to the client, like an access_token and user id from a provider.      
+      return {...session, ...token}
+    }
+  }
 }
 
 const handler = NextAuth(authOptions)
